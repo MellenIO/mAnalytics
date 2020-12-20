@@ -5,6 +5,12 @@ mysql:
   password: "analytics"
   database: "analytics"
 
+webapi:
+  enabled: true
+  username: "analytics"
+  password: "{{RANDOM}}"
+  port: 4567
+
 # If you register any custom entities, define them here
 # NOTE: unless you are a developer, you should NOT need to edit this.
 entities:

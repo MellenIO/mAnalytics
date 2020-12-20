@@ -34,14 +34,14 @@ public abstract class EAVObject {
             "            and eadc.entity_id = ?\n" +
             "    where ea.entity_type_id = ?";
 
-    protected String pkName = "entity_id";
+    protected transient String pkName = "entity_id";
 
-    private String entityName;
+    private transient String entityName;
     private int id;
     protected Map<String, Object> eavData = new HashMap<>();
-    private Map<String, Object> originalEavData = new HashMap<>();
+    private transient Map<String, Object> originalEavData = new HashMap<>();
 
-    private boolean isEAVLoaded = false;
+    private transient boolean isEAVLoaded = false;
 
     public EAVObject(String entityName) {
         this.entityName = entityName;

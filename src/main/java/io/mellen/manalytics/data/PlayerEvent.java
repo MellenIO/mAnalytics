@@ -2,13 +2,14 @@ package io.mellen.manalytics.data;
 
 import io.mellen.manalytics.data.analytics.AnalyticsEngine;
 import io.mellen.manalytics.data.connection.MysqlConnection;
+import io.mellen.manalytics.data.events.EventRenderer;
 
 import java.sql.*;
 import java.time.Instant;
 import java.util.Map;
 
 public class PlayerEvent extends EAVObject {
-    private Player player;
+    private transient Player player;
     private String eventName;
     private Timestamp createdAt;
 
@@ -16,6 +17,12 @@ public class PlayerEvent extends EAVObject {
     protected String customTwo;
     protected String customThree;
     protected String customFour;
+
+    private String html;
+
+    public PlayerEvent() {
+        super("player_event");
+    }
 
     public PlayerEvent(Player player, String eventName, String customOne, String customTwo, String customThree, String customFour) {
         super("player_event");
@@ -37,6 +44,7 @@ public class PlayerEvent extends EAVObject {
         this.customThree = customThree;
         this.customFour = customFour;
         this.createdAt = createdAt;
+        this.html = EventRenderer.forEvent(eventName).renderHTML(this);
     }
 
     @Override

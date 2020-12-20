@@ -95,6 +95,24 @@ public class EventRenderer {
             return result;
         }
 
+        public String renderHTML(PlayerEvent event) {
+            Map<String, String> replacements = new HashMap<>();
+            replacements.put("%%time_pretty%%", DateUtil.relativeFormat(event.getCreatedAt()));
+            replacements.put("%%time_long%%", DateUtil.utcFormat(event.getCreatedAt()));
+            replacements.put("%%player_name%%", event.getPlayer().getName());
+            replacements.put("%%player_uuid%%", event.getPlayer().getUuid().toString());
+            replacements.put("%%custom_one%%", event.getCustomOne());
+            replacements.put("%%custom_two%%", event.getCustomTwo());
+            replacements.put("%%custom_three%%", event.getCustomThree());
+            replacements.put("%%custom_four%%", event.getCustomFour());
+
+            String result = htmlFormat;
+            for (Map.Entry<String, String> replacement : replacements.entrySet()) {
+                result = result.replaceAll(replacement.getKey(), replacement.getValue());
+            }
+            return result;
+        }
+
         public String getCustomFourLabel() {
             return customFourLabel;
         }
