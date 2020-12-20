@@ -1,0 +1,76 @@
+mysql:
+  host: "192.168.0.3"
+  port: "3306"
+  username: "analytics"
+  password: "analytics"
+  database: "analytics"
+
+# If you register any custom entities, define them here
+# NOTE: unless you are a developer, you should NOT need to edit this.
+entities:
+  - player
+  - player_event
+
+# Event renderer config
+# These config values will determine how events are rendered both on the analytics dashboard and also on the server.
+events:
+  # Default event renderer - this is used if one isn't defined below!
+  default:
+    text: "&7%%time_pretty%%&6 %%player_name%% &atriggered event &6%%event_name%%&a. &6 (%%custom_one%%, %%custom_two%%, %%custom_three%%, %%custom_four%%)"
+    html: '<span class="date" data-utc="%%time_long%%"></span> <a href="/player/%%player_uuid%%" class="player-name">%%player_name%%</a> executed event <span class="event-name">%%event_name%%</span>. <span class="alt">(%%custom_one%%, %%custom_two%%, %%custom_three%%, %%custom_four%%)</span>'
+  player:
+    death:
+      custom: #"custom" only applies labels when viewing certain breakdowns
+        one: "last damage cause"
+        two: "world name"
+        three: "position (vector)"
+        four: "null"
+      text: "&7%%time_pretty%%&6 %%player_name%% &adied from&6 %%custom_one%%&a. (%%custom_two%%, %%custom_three%%, %%custom_four%%)"
+      html: '<span class="date" data-utc="%%time_long%%"></span> <a href="/player/%%player_uuid%%" class="player-name">%%player_name%%</a> died from <span class="damage-cause">%%custom_one%%</span>. <span class="alt">(%%custom_two%%, %%custom_three%%, %%custom_four%%)</span>'
+    join:
+      custom: #"custom" only applies labels when viewing certain breakdowns
+        one: "world"
+        two: "x"
+        three: "y"
+        four: "z"
+      text: "&7%%time_pretty%%&6 %%player_name%% &ajoined the server.&6 (%%custom_one%%, %%custom_two%%, %%custom_three%%, %%custom_four%%)"
+      html: '<span class="date" data-utc="%%time_long%%"></span> <a href="/player/%%player_uuid%%" class="player-name">%%player_name%%</a> joined the server. <span class="alt">(%%custom_one%%, %%custom_two%%, %%custom_three%%, %%custom_four%%)</span>'
+    leave:
+      custom: #"custom" only applies labels when viewing certain breakdowns
+        one: "world"
+        two: "x"
+        three: "y"
+        four: "z"
+      text: "&7%%time_pretty%%&6 %%player_name%% &aleft the server.&6 (%%custom_one%%, %%custom_two%%, %%custom_three%%, %%custom_four%%)"
+      html: '<span class="date" data-utc="%%time_long%%"></span> <a href="/player/%%player_uuid%%" class="player-name">%%player_name%%</a> left the server. <span class="alt">(%%custom_one%%, %%custom_two%%, %%custom_three%%, %%custom_four%%)</span>'
+    kill:
+      entity:
+        custom: #"custom" only applies labels when viewing certain breakdowns
+          one: "entity name"
+          two: "entity type"
+          three: "used item"
+          four: "player location"
+        text: "&7%%time_pretty%%&6 %%player_name%% &akilled a &6%%custom_one%%&a. (%%custom_two%%, %%custom_three%%, %%custom_four%%)"
+        html: '<span class="date" data-utc="%%time_long%%"></span> <a href="/player/%%player_uuid%%" class="player-name">%%player_name%%</a> killed a <span class="entity-name">%%custom_one%%</span>. <span class="alt">(%%custom_two%%, %%custom_three%%, %%custom_four%%)</span>'
+      player:
+        custom: #"custom" only applies labels when viewing certain breakdowns
+          one: "slain player name"
+          two: "slain player uuid"
+          three: "item used"
+          four: "last damage cause"
+        text: "&7%%time_pretty%%&6 %%player_name%% &akilled &6%%custom_one%%&a. (%%custom_two%%, %%custom_three%%, %%custom_four%%)"
+        html: '<span class="date" data-utc="%%time_long%%"></span> <a href="/player/%%player_uuid%%" class="player-name">%%player_name%%</a> killed <span class="entity-name">%%custom_one%%</span>. <span class="alt">(%%custom_two%%, %%custom_three%%, %%custom_four%%)</span>'
+
+settings:
+  player:
+    death:
+      enabled: true # Leave as "true" if you want mAnalytics to push player.death events
+    kill:
+      entity:
+        enabled: true # Leave as "true" if you want mAnalytics to push player.kill.entity events
+        types:
+          - CREEPER
+          - CHICKEN
+          - CAT
+      player:
+        enabled: true # Leave as "true" if you want mAnalytics to push player.kill.player events

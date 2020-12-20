@@ -1,0 +1,9 @@
+name: mAnalytics
+version: "1.0.0"
+main: io.mellen.manalytics.AnalyticsPlugin
+author: Adam Mellen
+api-version: 1.16
+depend: [ Vault ]
+commands:
+  analytics:
+    description: Analytics command
