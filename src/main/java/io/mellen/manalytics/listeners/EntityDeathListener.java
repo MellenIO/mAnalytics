@@ -42,14 +42,16 @@ public class EntityDeathListener implements Listener {
         if (!entityType.equals(EntityType.PLAYER) && killer != null) {
             String entityTypeName = entityType.name();
             if (entityConfig.contains(entityTypeName)) {
-                plugin.getAnalyticsEngine().pushEvent(
-                        plugin.getAnalyticsEngine().getPlayer(killer),
-                        "player.kill.entity",
-                        event.getEntity().getName(),
-                        entityType.name(),
-                        ItemUtil.getItemName(killer.getItemInHand()),
-                        killer.getLocation().toString()
-                );
+                plugin.async(() -> {
+                    plugin.getAnalyticsEngine().pushEvent(
+                            plugin.getAnalyticsEngine().getPlayer(killer),
+                            "player.kill.entity",
+                            event.getEntity().getName(),
+                            entityType.name(),
+                            ItemUtil.getItemName(killer.getItemInHand()),
+                            killer.getLocation().toString()
+                    );
+                });
             }
         }
     }
@@ -61,25 +63,30 @@ public class EntityDeathListener implements Listener {
         Player killer = deadPlayer.getKiller();
         if (killer != null && playerKillEnabled) {
             //Push player.kill.player event, killer has killed deadPlayer
-            plugin.getAnalyticsEngine().pushEvent(
-                    plugin.getAnalyticsEngine().getPlayer(killer),
-                    "player.kill.player",
-                    deadPlayer.getName(),
-                    deadPlayer.getUniqueId().toString(),
-                    ItemUtil.getItemName(killer.getItemInHand()),
-                    deadPlayer.getLastDamageCause().getCause().name()
-                    );
+            plugin.async(() -> {
+                plugin.getAnalyticsEngine().pushEvent(
+                        plugin.getAnalyticsEngine().getPlayer(killer),
+                        "player.kill.player",
+                        deadPlayer.getName(),
+                        deadPlayer.getUniqueId().toString(),
+                        ItemUtil.getItemName(killer.getItemInHand()),
+                        deadPlayer.getLastDamageCause().getCause().name()
+                );
+            });
+
         }
 
         if (playerDeathEnabled) {
-            plugin.getAnalyticsEngine().pushEvent(
-                    plugin.getAnalyticsEngine().getPlayer(deadPlayer),
-                    "player.death",
-                    deadPlayer.getLastDamageCause().getCause().name(),
-                    deadPlayer.getLocation().getWorld().getName(),
-                    deadPlayer.getLocation().toVector().toString(),
-                    null //TODO add a 4th parameter?
-            );
+            plugin.async(() -> {
+                plugin.getAnalyticsEngine().pushEvent(
+                        plugin.getAnalyticsEngine().getPlayer(deadPlayer),
+                        "player.death",
+                        deadPlayer.getLastDamageCause().getCause().name(),
+                        deadPlayer.getLocation().getWorld().getName(),
+                        deadPlayer.getLocation().toVector().toString(),
+                        null //TODO add a 4th parameter?
+                );
+            });
         }
 
 

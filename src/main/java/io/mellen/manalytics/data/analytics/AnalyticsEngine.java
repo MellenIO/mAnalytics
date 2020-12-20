@@ -1,6 +1,7 @@
 package io.mellen.manalytics.data.analytics;
 
 import io.mellen.manalytics.AnalyticsPlugin;
+import io.mellen.manalytics.bukkit.event.BeforePlayerEventPushEvent;
 import io.mellen.manalytics.data.Player;
 import io.mellen.manalytics.data.PlayerEvent;
 import io.mellen.manalytics.data.connection.MysqlConnection;
@@ -31,6 +32,27 @@ public class AnalyticsEngine {
         INSTANCE = this;
     }
 
+    public void removePlayer(UUID uuid) {
+        removePlayer(uuid, false);
+    }
+
+    public void removePlayer(UUID uuid, boolean save) {
+        if (playerMap.containsKey(uuid)) {
+            if (save) {
+                Player playerObject = playerMap.get(uuid);
+                playerObject.save(getConnection());
+            }
+
+            playerMap.remove(uuid);
+        }
+    }
+
+    public void saveAllPlayers() {
+        for (Map.Entry<UUID, Player> playerEntry : playerMap.entrySet()) {
+            playerEntry.getValue().save(getConnection());
+        }
+    }
+
     public Player getPlayer(OfflinePlayer referencePlayer) {
         return getPlayerByUUID(referencePlayer.getUniqueId());
     }
@@ -54,7 +76,12 @@ public class AnalyticsEngine {
 
     public void pushEvent(Player player, String eventName, String customOne, String customTwo, String customThree, String customFour) {
         PlayerEvent event = new PlayerEvent(player, eventName, customOne, customTwo, customThree, customFour);
-        event.forceCreate(connection);
+
+        BeforePlayerEventPushEvent bukkitEvent = new BeforePlayerEventPushEvent(event);
+        Bukkit.getPluginManager().callEvent(bukkitEvent);
+        if (!bukkitEvent.isCancelled()) {
+            event.forceCreate(connection);
+        }
     }
 
     public UUID getUUIDByInternalId(int id) {
@@ -99,7 +126,7 @@ public class AnalyticsEngine {
             stmt.setInt(1, player.getId());
             ResultSet results = stmt.executeQuery();
             while (results.next()) {
-                events.add(new PlayerEvent(
+                PlayerEvent evt = new PlayerEvent(
                         player,
                         results.getString("event_name"),
                         results.getString("custom_one"),
@@ -107,7 +134,9 @@ public class AnalyticsEngine {
                         results.getString("custom_three"),
                         results.getString("custom_four"),
                         results.getTimestamp("created_at")
-                ));
+                );
+                evt.forceLoadEAVById(connection, results.getInt("event_id"));
+                events.add(evt);
             }
         }
         catch (SQLException ex) {

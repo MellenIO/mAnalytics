@@ -5,6 +5,7 @@ import io.mellen.manalytics.data.analytics.AnalyticsEngine;
 import io.mellen.manalytics.data.connection.MysqlConnection;
 import io.mellen.manalytics.data.events.EventRenderer;
 import io.mellen.manalytics.listeners.EntityDeathListener;
+import io.mellen.manalytics.listeners.EventPushListener;
 import io.mellen.manalytics.listeners.PlayerStatusListener;
 import io.mellen.manalytics.web.WebAPI;
 import org.bukkit.Bukkit;
@@ -30,6 +31,7 @@ public class AnalyticsPlugin extends JavaPlugin {
 
         getLogger().info("Initialising MySQL connection");
         connection = new MysqlConnection(this, getConfig().getString("mysql.host"), getConfig().getString("mysql.port"), getConfig().getString("mysql.username"), getConfig().getString("mysql.password"), getConfig().getString("mysql.database"));
+        //connection.tryCreateEntityTypes(getConfig().getStringList("entities"));
         getLogger().info("Loading entities");
         connection.loadEntityTypes();
 
@@ -45,6 +47,7 @@ public class AnalyticsPlugin extends JavaPlugin {
         getCommand("analytics").setExecutor(new AnalyticsCommand(this));
         getServer().getPluginManager().registerEvents(new PlayerStatusListener(this), this);
         getServer().getPluginManager().registerEvents(new EntityDeathListener(this), this);
+        getServer().getPluginManager().registerEvents(new EventPushListener(), this);
 
         if (getConfig().getBoolean("webapi.enabled", false)) {
             getLogger().info("Loading Web API");
@@ -71,6 +74,12 @@ public class AnalyticsPlugin extends JavaPlugin {
     public void onDisable() {
         if (webapi != null) {
             webapi.stopListening();
+        }
+
+        if (getConfig().getBoolean("settings.data.save-players-on-disable", false)) {
+            getLogger().info("Saving all players in main thread; this may take a while.");
+            engine.saveAllPlayers();
+            getLogger().info("All player objects saved!");
         }
         connection.close();
     }

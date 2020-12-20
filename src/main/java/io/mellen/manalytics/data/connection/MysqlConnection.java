@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 
 import java.sql.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -39,6 +40,23 @@ public class MysqlConnection {
         if (source != null) {
             source.close();
         }
+    }
+
+    public void tryCreateEntityTypes(List<String> types) {
+        StringBuilder queryBase = new StringBuilder("insert ignore into entity(entity_type_name) values ");
+        types.forEach(s -> queryBase.append("(?), "));
+        queryBase.substring(0, queryBase.length() - 2); //Remove trailing ", "
+        try (Connection connection = source.getConnection()) {
+            PreparedStatement stmt = connection.prepareStatement(queryBase.toString());
+            for (int i = 0; i < types.size(); i++) {
+                stmt.setString(i + 1, types.get(i));
+            }
+            stmt.executeUpdate();
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
     }
 
     public void loadEntityTypes() {

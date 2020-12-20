@@ -6,6 +6,7 @@ import io.mellen.manalytics.data.events.EventRenderer;
 
 import java.sql.*;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 
 public class PlayerEvent extends EAVObject {
@@ -33,6 +34,9 @@ public class PlayerEvent extends EAVObject {
         this.customThree = customThree;
         this.customFour = customFour;
         this.createdAt = Timestamp.from(Instant.now());
+
+        //Set an empty EAV object to allow EAV to be saved
+        setEavData(new HashMap<>());
     }
 
     public PlayerEvent(Player player, String eventName, String customOne, String customTwo, String customThree, String customFour, Timestamp createdAt) {
@@ -104,6 +108,7 @@ public class PlayerEvent extends EAVObject {
     public void forceCreate(MysqlConnection connection) {
         try {
             create(connection);
+            saveEAV(connection);
         }
         catch (Exception ex) {
             ex.printStackTrace();

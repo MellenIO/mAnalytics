@@ -13,8 +13,12 @@ public class PlayerStatusListener implements Listener {
 
     private AnalyticsPlugin plugin;
 
+    private boolean cleanPlayerOnLeave;
+
     public PlayerStatusListener(AnalyticsPlugin plugin) {
         this.plugin = plugin;
+
+        cleanPlayerOnLeave = plugin.getConfig().getBoolean("settings.data.remove-player-object-on-leave", false);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -43,6 +47,9 @@ public class PlayerStatusListener implements Listener {
             Location loc = event.getPlayer().getLocation();
             plugin.getAnalyticsEngine().pushEvent(dataPlayer, "player.leave", loc.getWorld().getName(), "" + loc.getBlockX(), "" + loc.getBlockY(), "" + loc.getBlockZ());
 
+            if (cleanPlayerOnLeave) {
+                plugin.getAnalyticsEngine().removePlayer(event.getPlayer().getUniqueId());
+            }
         });
     }
 }

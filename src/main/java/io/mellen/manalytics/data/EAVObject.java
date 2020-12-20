@@ -91,31 +91,46 @@ public abstract class EAVObject {
                 }
             }
 
-            //Load EAV data
-            PreparedStatement stmt = sqlConnection.prepareStatement(LOAD_EAV_QUERY);
-            stmt.setInt(1, id);
-            stmt.setInt(2, id);
-            stmt.setInt(3, id);
-            stmt.setInt(4, id);
-            stmt.setInt(5, connection.getEntityTypeId(entityName));
-
-            ResultSet results = stmt.executeQuery();
-            HashMap<String, Object> eavData = new HashMap<>();
-            while (true) {
-                try {
-                    if (!results.next()) break;
-                    eavData.put(results.getString("attribute_name"), results.getObject("attribute_value"));
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            setEavData(eavData);
+            forceLoadEAV(sqlConnection, connection.getEntityTypeId(entityName));
+            //forceLoadEAV
         }
         catch (SQLException ex) {
             connection.debug("CONNERROR An SQL Exception occurred trying to load a " + entityName + " entity with " + column + " = " + value.toString() + "!");
             ex.printStackTrace();
         }
+    }
+
+    public void forceLoadEAVById(MysqlConnection connection, int id) {
+        setId(id);
+        try (Connection sqlConnection = connection.getConnection()) {
+            forceLoadEAV(sqlConnection, connection.getEntityTypeId(entityName));
+        }
+        catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    protected void forceLoadEAV(Connection sqlConnection, int typeId) throws SQLException {
+        //Load EAV data
+        PreparedStatement stmt = sqlConnection.prepareStatement(LOAD_EAV_QUERY);
+        stmt.setInt(1, id);
+        stmt.setInt(2, id);
+        stmt.setInt(3, id);
+        stmt.setInt(4, id);
+        stmt.setInt(5, typeId);
+
+        ResultSet results = stmt.executeQuery();
+        HashMap<String, Object> eavData = new HashMap<>();
+        while (true) {
+            try {
+                if (!results.next()) break;
+                eavData.put(results.getString("attribute_name"), results.getObject("attribute_value"));
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        setEavData(eavData);
     }
 
     protected void setEavData(HashMap<String, Object> data) {
@@ -155,6 +170,10 @@ public abstract class EAVObject {
             ex.printStackTrace();
         }
 
+        saveEAV(connection);
+    }
+
+    protected void saveEAV(MysqlConnection connection) {
         if (isEAVLoaded) {
             //Save EAV data
             Map<Integer, AttributeData<Object>> varcharData = new HashMap<>();

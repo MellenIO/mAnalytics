@@ -68,6 +68,14 @@ events:
         html: '<span class="date" data-utc="%%time_long%%"></span> <a href="/player/%%player_uuid%%" class="player-name">%%player_name%%</a> killed <span class="entity-name">%%custom_one%%</span>. <span class="alt">(%%custom_two%%, %%custom_three%%, %%custom_four%%)</span>'
 
 settings:
+  data:
+    # Leave as "true" if you want mAnalytics to save loaded players on disable (recommended in production only)
+    # This will help issues where player sessions are never marked as "finished", which can cause problems in calculating playtime (among other things)
+    save-players-on-disable: true
+    # Leave as "true" if you want mAnalytics to try and keep the player cache small
+    # This can make the "save-players-on-disable" feature a lot faster for long-running, high-population servers
+    # HOWEVER, it may make some queries slower as mAnalytics will have to re-load the player when it is requested
+    remove-player-object-on-leave: false
   player:
     death:
       enabled: true # Leave as "true" if you want mAnalytics to push player.death events
